@@ -107,6 +107,11 @@ class Snapshot:
     
         snapshot_path = self._get_snapshot_path(test_name)
 
+        if force_update:
+            # Update mode: save the current data as the new snapshot
+            with open(snapshot_path, "wb") as f:
+                pickle.dump(actual, f)
+            return  # Don't do comparison when updating
 
         # Load the snapshot
         with open(snapshot_path, "rb") as f:
