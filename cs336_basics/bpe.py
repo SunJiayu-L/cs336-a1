@@ -1,3 +1,4 @@
+#!/home/sun/miniconda3/envs/stanford/bin/python3
 import regex as re
 import collections
 import os
@@ -94,7 +95,7 @@ def bpe_train(
     with open(input_path, 'rb') as f:
         # Find chunk boundaries
         boundaries = find_chunk_boundaries(
-            f, num_processes, "<|endoftext|>".encode("utf-8"))
+            f, num_processes, "``".encode("utf-8"))
         
         PAT = (r"""'(?:[sdmt]|ll|ve|re)| ?\p{L}+| ?\p{N}+| """
                r"""?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+""")
@@ -110,7 +111,8 @@ def bpe_train(
             # pre-tokenize the chunk
             text_parts = re.findall(split_pattern, chunk)
             text_parts = [part for part in text_parts if part]
-            
+
+
             # ！！！！ accumulate token counts from this chunk
             for token in text_parts:
                 if token in special_tokens:
@@ -164,6 +166,7 @@ def bpe_train(
         merged_token = max_pair[0] + max_pair[1]
         vocab[next_id] = merged_token
         next_id += 1
-
     return vocab, merges
+
+
 

@@ -11,6 +11,10 @@ from torch import Tensor
 
 # Import the BPE implementation
 from cs336_basics.bpe import bpe_train
+# Import the Linear implementation
+from cs336_basics.Liner import Linear
+# Import the Embedding implementation
+from cs336_basics.Embedding import Embedding
 
 def run_linear(
     d_in: int,
@@ -30,9 +34,14 @@ def run_linear(
     Returns:
         Float[Tensor, "... d_out"]: The transformed output of your linear module.
     """
-
-    raise NotImplementedError
-
+    #Create a Linear layer instance
+    linear = Linear(d_in, d_out)
+    
+    # load_state_dict期望收到一个字典，其中包含参数名称和对应的张量
+    state_dict = {"weight": weights}
+    linear.load_state_dict(state_dict)
+    
+    return linear.forward(in_features)
 
 def run_embedding(
     vocab_size: int,
@@ -52,8 +61,11 @@ def run_embedding(
     Returns:
         Float[Tensor, "... d_model"]: Batch of embeddings returned by your Embedding layer.
     """
+    embedding=Embedding(vocab_size, d_model)
+    state_dict = {"weight": weights}
+    embedding.load_state_dict(state_dict)
 
-    raise NotImplementedError
+    return embedding.forward(token_ids)
 
 
 def run_swiglu(
