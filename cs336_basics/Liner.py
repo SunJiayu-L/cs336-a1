@@ -1,6 +1,7 @@
 import numpy as np
 import torch 
 import torch.nn as nn
+from .weight_init import init_weights
 
 class Linear(nn.Module):
     def __init__(self, in_features: int, out_features: int,
@@ -19,19 +20,8 @@ class Linear(nn.Module):
         self.device = device
         self.dtype = dtype
 
-        w_init= self.init_weights(out_features, in_features, self.device, self.dtype)
-        self.weight = nn.Parameter(w_init)  # PyTorch 专门用来**“声明这是一个可训练参数”**的类。
-
-    def init_weights(self,out_dim:int, in_dim:int, device:torch.device, dtype:torch.dtype)->torch.Tensor:
-        """
-        Initializes the weights of the linear layer.
-        """
-        # torch.empty() 创建一个未初始化的张量（tensor），里面的值是随机的内存垃圾值。 
-        W=torch.empty(out_dim, in_dim, device=device,dtype=dtype)
-        mean=0
-        std= np.sqrt(2/(out_dim+in_dim))
-        nn.init.trunc_normal_(W, mean, std,-3*std, 3*std)
-        return W
+        w_init = init_weights(out_features, in_features, self.device, self.dtype)
+        self.weight = nn.Parameter(w_init)
 
     def forward (self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -47,6 +37,18 @@ class Linear(nn.Module):
         # 权重形状: (d_out, d_in) -> (o, i)
         # 输入形状: (..., d_in) -> (..., i)  
         # 输出形状: (..., d_out) -> (..., o)
-        # 正确的单字符下标格式
         return torch.einsum("...i, oi -> ...o", x, self.weight)
 
+# 测试代码
+if __name__ == "__main__":
+    # 创建线性层实例
+    liner = Linear(10, 5)  # 输入10个特征，输出5个特征
+    print("Linear layer created successfully!")
+    print(f"Weight shape: {liner.weight.shape}")
+    
+    # 测试前向传播
+    x = torch.randn(3, 10)  # 批次大小3，输入特征10
+    output = liner(x)
+    print(f"Input shape: {x.shape}")
+    print(f"Output shape: {output.shape}")
+    print("Forward pass completed successfully!")

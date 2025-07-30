@@ -15,7 +15,11 @@ from cs336_basics.bpe import bpe_train
 from cs336_basics.Liner import Linear
 # Import the Embedding implementation
 from cs336_basics.Embedding import Embedding
-
+from cs336_basics.RMSNorm import RMSNorm
+from cs336_basics.weight_init import init_weights
+from cs336_basics.RMSNorm import RMSNorm
+from cs336_basics.SwiGLU import Silu
+from cs336_basics.SwiGLU import SwiGLU
 def run_linear(
     d_in: int,
     d_out: int,
@@ -90,14 +94,18 @@ def run_swiglu(
     Returns:
         Float[Tensor, "... d_model"]: Output embeddings of the same shape as the input embeddings.
     """
-    # Example:
-    # If your state dict keys match, you can use `load_state_dict()`
-    # swiglu.load_state_dict(weights)
-    # You can also manually assign the weights
-    # swiglu.w1.weight.data = w1_weight
-    # swiglu.w2.weight.data = w2_weight
-    # swiglu.w3.weight.data = w3_weight
-    raise NotImplementedError
+    # Create SwiGLU instance
+    swiglu = SwiGLU(d_model, d_ff)
+    
+    # Load the weights using state_dict with correct parameter names
+    state_dict = {
+        "w1": w1_weight,
+        "w2": w2_weight, 
+        "w3": w3_weight
+    }
+    swiglu.load_state_dict(state_dict)
+    
+    return swiglu.forward(in_features)
 
 
 def run_scaled_dot_product_attention(
@@ -392,7 +400,12 @@ def run_rmsnorm(
         Float[Tensor,"... d_model"]: Tensor of with the same shape as `in_features` with the output of running
         RMSNorm of the `in_features`.
     """
-    raise NotImplementedError
+    RMS= RMSNorm(d_model,eps)
+    # load_state_dict期望收到一个字典，其中包含参数名称和对应的张量
+    state_dict = {"weight": weights}
+    RMS.load_state_dict(state_dict)
+    return RMS.forward(in_features)
+
 
 
 def run_silu(in_features: Float[Tensor, " ..."]) -> Float[Tensor, " ..."]:
@@ -406,7 +419,9 @@ def run_silu(in_features: Float[Tensor, " ..."]) -> Float[Tensor, " ..."]:
         Float[Tensor,"..."]: of with the same shape as `in_features` with the output of applying
         SiLU to each element.
     """
-    raise NotImplementedError
+    silu=Silu()
+    return silu.forward(in_features)
+    
 
 
 def run_get_batch(
