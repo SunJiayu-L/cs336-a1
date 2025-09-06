@@ -17,6 +17,7 @@ class RMSNorm(nn.Module):
         self.device = device
         self.dtype = dtype            
         self.weight = nn.Parameter(torch.ones(d_model, device=device, dtype=dtype)) #gain parameter
+        
     def forward(self,x:torch.Tensor)->torch.Tensor:
         # Compute the RMS normalization
         in_dtype = x.dtype
